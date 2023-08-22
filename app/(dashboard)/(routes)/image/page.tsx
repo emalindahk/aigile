@@ -9,7 +9,6 @@ import axios from "axios";
 import Image from "next/image";
 
 import { amountOptions, formSchema, resolutionOptions } from "./constants";
-import { cn } from "@/lib/utils";
 
 import Heading from "@/components/heading";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
