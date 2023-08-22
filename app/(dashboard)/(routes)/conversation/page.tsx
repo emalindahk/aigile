@@ -15,6 +15,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Empty } from "@/components/empty";
+import Loader from "@/components/loader";
+import { cn } from "@/lib/utils";
+import UserAvatar from "@/components/user-avatar";
+import BotAvatar from "@/components/bot-avatar";
 
 const ConversationPage = () => {
   const router = useRouter();
@@ -29,6 +33,29 @@ const ConversationPage = () => {
   });
 
   const isLoading = form.formState.isSubmitting;
+
+  const conversationPairs = [];
+  let currentPair: CreateChatCompletionRequestMessage[] = [];
+
+  messages.forEach((message) => {
+    if (message.role === "user") {
+      if (currentPair.length > 0) {
+        conversationPairs.push(currentPair);
+        currentPair = [];
+      }
+      currentPair.push(message);
+    } else if (message.role === "assistant" && currentPair.length > 0) {
+      currentPair.push(message);
+      conversationPairs.push(currentPair);
+      currentPair = [];
+    }
+  });
+
+  // Push any remaining messages without a response
+  if (currentPair.length > 0) {
+    conversationPairs.push(currentPair);
+  }
+
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
@@ -53,6 +80,7 @@ const ConversationPage = () => {
       router.refresh();
     }
   };
+  console.log(conversationPairs)
 
   return (
     <div>
@@ -95,12 +123,32 @@ const ConversationPage = () => {
           </Form>
         </div>
         <div className="space-y-4 mt-4">
-            {messages.length === 0 && !isLoading && (
-                <Empty label=""/>
-            )}
+          {isLoading && (
+            <div className="p-8 w-full rounded-lg flex items-center justify-center bg-muted">
+              <Loader />
+            </div>
+          )}
+          {messages.length === 0 && !isLoading && (
+            <Empty label="No conversation started" />
+          )}
           <div className="flex flex-col-reverse gap-y-4">
-            {messages.map((message) => (
-              <div key={message.content}>{message.content}</div>
+            {conversationPairs.map((pair, index) => (
+              <div key={index} className="flex flex-col gap-y-4">
+                {pair.map((message) => (
+                  <div
+                  key={message.content}
+                    className={cn(
+                      "p-8 w-full flex items-start gap-x-8 rounded-lg",
+                      message.role === "user"
+                        ? "bg-white border border-black/10"
+                        : "bg-muted"
+                    )}
+                  >
+                    {message.role === "user" ? <UserAvatar /> : <BotAvatar />}
+                    <p className="text-sm">{message.content}</p>
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
         </div>
