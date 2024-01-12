@@ -24,7 +24,7 @@ const routes = [
   {
     label: "Image Generation",
     icon: ImageIcon,
-    href: "/image-generation",
+    href: "/image",
     color: "text-pink-500",
   },
   {
