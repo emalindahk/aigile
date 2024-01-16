@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import * as z from "zod";
-import { Music, VideoIcon } from "lucide-react";
+import { VideoIcon } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -34,7 +34,7 @@ const VideoPage = () => {
       setVideo(undefined);
 
       const response = await axios.post("/api/video", values);
-
+      console.log('RESPONSE', response.data)
       setVideo(response.data[0]);
       form.reset();
     } catch (error: any) {
@@ -44,6 +44,7 @@ const VideoPage = () => {
       router.refresh();
     }
   };
+  console.log(video)
 
   return (
     <div>
@@ -91,7 +92,7 @@ const VideoPage = () => {
               <Loader />
             </div>
           )}
-          {!video && !isLoading && <Empty label="No video genrated" />}
+          {!video && !isLoading && <Empty label="No video generated" />}
           {video && (
             <video controls className="w-full mt-8 aspect-video rounded-lg border border-black">
               <source src={video}/>
